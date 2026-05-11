@@ -1,9 +1,46 @@
-import React from "react";
-import { motion } from "motion/react";
-import { Search, Zap, Shield, Rocket, Globe, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Search, Zap, Shield, Rocket, Globe, ChevronRight, ChevronDown } from "lucide-react";
 
 interface LandingPageProps {
   onStart: () => void;
+}
+
+interface FAQItemProps {
+  question: string;
+  answer: string;
+}
+
+const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border border-white/5 bg-white/[0.02] rounded-2xl overflow-hidden hover:border-white/10 transition-colors">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-4 flex items-center justify-between text-left group"
+      >
+        <span className="font-semibold text-white group-hover:text-blue-500 transition-colors">{question}</span>
+        <ChevronDown 
+          className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} 
+        />
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <div className="px-6 pb-4 text-sm text-slate-500 leading-relaxed">
+              {answer}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export function LandingPage({ onStart }: LandingPageProps) {
@@ -131,6 +168,43 @@ export function LandingPage({ onStart }: LandingPageProps) {
                 <h3 className="text-xl font-bold mb-3 text-white">{feature.title}</h3>
                 <p className="text-slate-500 leading-relaxed text-sm">{feature.desc}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 border-t border-white/5">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4 text-white">Frequently Asked Questions</h2>
+            <p className="text-slate-500">Everything you need to know about secure discovery.</p>
+          </div>
+          
+          <div className="space-y-4">
+            {[
+              {
+                q: "How does Connector find contacts?",
+                a: "Our AI engine analyzes publicly available data from official company domains, news articles, and corporate filings to identify business email patterns and public inquiry points."
+              },
+              {
+                q: "Is the information verified?",
+                a: "Yes. Every contact found includes a 'Source' link, allowing you to click directly and see where the information was publicly posted for complete transparency."
+              },
+              {
+                q: "Is searching for contacts legal?",
+                a: "Connector only indexes information that organizations have intentionally made public on their websites or official channels. We do not engage in private data scraping or unauthorized access."
+              },
+              {
+                q: "Can I save the leads I find?",
+                a: "Absolutely. Once signed in, you can bookmark any contact with a single click and access them anytime from your private 'Saved Contacts' dashboard."
+              },
+              {
+                q: "How do I generate outreach messages?",
+                a: "Our AI reads the company's public mission and the contact category to help you draft professional, relevant pitches that get higher response rates."
+              }
+            ].map((item, i) => (
+              <FAQItem key={i} question={item.q} answer={item.a} />
             ))}
           </div>
         </div>
