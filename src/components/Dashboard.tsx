@@ -8,7 +8,11 @@ import { motion, AnimatePresence } from "motion/react";
 import { OutreachModal } from "./OutreachModal";
 import { cn } from "../lib/utils";
 
-export function Dashboard() {
+interface DashboardProps {
+  onGoHome: () => void;
+}
+
+export function Dashboard({ onGoHome }: DashboardProps) {
   const [activeTab, setActiveTab] = useState("search");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -73,7 +77,7 @@ export function Dashboard() {
 
   return (
     <div className="flex h-screen bg-brand-bg text-slate-200 overflow-hidden">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onGoHome={onGoHome} />
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Search Header */}

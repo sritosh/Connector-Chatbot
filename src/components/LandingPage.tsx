@@ -56,9 +56,6 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
-            <button onClick={onStart} className="px-5 py-2 bg-white text-black rounded-lg hover:bg-slate-200 transition-colors font-semibold">
-              Sign In
-            </button>
           </div>
         </div>
       </nav>
@@ -197,7 +194,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
               },
               {
                 q: "Can I save the leads I find?",
-                a: "Absolutely. Once signed in, you can bookmark any contact with a single click and access them anytime from your private 'Saved Contacts' dashboard."
+                a: "Absolutely. You can bookmark any contact with a single click and access them anytime from your private 'Saved Contacts' dashboard."
               },
               {
                 q: "How do I generate outreach messages?",

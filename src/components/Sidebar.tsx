@@ -1,15 +1,14 @@
 import React from "react";
-import { Search, History, Bookmark, Settings, LogOut, Zap } from "lucide-react";
+import { Search, History, Bookmark, Settings, Zap, Home } from "lucide-react";
 import { cn } from "../lib/utils";
-import { auth } from "../lib/firebase";
-import { signOut } from "firebase/auth";
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onGoHome: () => void;
 }
 
-export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, onGoHome }: SidebarProps) {
   const menuItems = [
     { id: "search", icon: Search, label: "Discovery" },
     { id: "saved", icon: Bookmark, label: "Saved Contacts" },
@@ -17,22 +16,17 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     { id: "settings", icon: Settings, label: "Settings" },
   ];
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Sign out error", error);
-    }
-  };
-
   return (
     <div className="w-64 h-screen bg-sidebar-bg border-r border-border-subtle flex flex-col">
-      <div className="p-6 flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+      <button 
+        onClick={onGoHome}
+        className="p-6 flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity text-left cursor-pointer group"
+      >
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
           <Zap className="text-white w-5 h-5 fill-current" />
         </div>
         <span className="text-xl font-semibold tracking-tight text-white">Connector</span>
-      </div>
+      </button>
 
       <nav className="flex-1 px-4 space-y-1">
         {menuItems.map((item) => (
@@ -55,13 +49,13 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="p-6 border-t border-border-faint">
+      <div className="p-6 border-t border-white/5">
         <button 
-          onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-red-400 transition-colors group"
+          onClick={onGoHome}
+          className="w-full flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-white transition-colors group text-sm font-medium"
         >
-          <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          <span className="font-medium text-xs">Sign Out</span>
+          <Home className="w-5 h-5 group-hover:scale-110 transition-transform opacity-80 group-hover:opacity-100" />
+          <span>Back to Home</span>
         </button>
       </div>
     </div>
