@@ -48,6 +48,17 @@ export const ResultCard: React.FC<ResultCardProps> = ({ contact, onSave, onGener
     Low: <ShieldAlert className="w-4 h-4 text-zinc-500" />,
   }[contact.confidence];
 
+  const getHostname = (url: string) => {
+    try {
+      if (url.startsWith('http')) {
+        return new URL(url).hostname;
+      }
+      return url;
+    } catch {
+      return url;
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -104,7 +115,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ contact, onSave, onGener
             <Bookmark className={cn("w-3.5 h-3.5", isSaved && "fill-current")} />
           </button>
           <a
-            href={contact.source}
+            href={contact.source.startsWith('http') ? contact.source : "#"}
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-lg border border-white/10 text-slate-500 hover:bg-white/5 transition-colors"
@@ -119,7 +130,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ contact, onSave, onGener
           {contact.value}
         </p>
         <p className="text-[10px] text-slate-600 truncate">
-          Source: {new URL(contact.source).hostname}
+          Source: {getHostname(contact.source)}
         </p>
       </div>
 

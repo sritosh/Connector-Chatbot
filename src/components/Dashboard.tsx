@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { ResultCard } from "./ResultCard";
-import { Search, Loader2, Zap, History as HistoryIcon, Bookmark, Globe, X } from "lucide-react";
+import { Search, Loader2, Zap, History as HistoryIcon, Bookmark, Globe, X, XCircle } from "lucide-react";
 import { geminiService } from "../services/geminiService";
 import { SearchResult, Contact, DBState, HistoryItem } from "../types";
 import { motion, AnimatePresence } from "motion/react";
@@ -69,7 +69,7 @@ export function Dashboard() {
     fetchDB();
   };
 
-  const categories = result ? Array.from(new Set(result.contacts.map(c => c.type))) : [];
+  const categories = (result && result.contacts) ? Array.from(new Set(result.contacts.map(c => c.type))) : [];
 
   return (
     <div className="flex h-screen bg-brand-bg text-slate-200 overflow-hidden">
@@ -154,25 +154,38 @@ export function Dashboard() {
                       <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-500">Public Contact Data</h2>
                       <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold border border-emerald-500/20 uppercase">AI Analyzed</span>
                     </div>
-                    <p className="text-xs text-slate-500">Found {result.contacts.length} insights for <b className="text-white">{result.companyName}</b></p>
+                    <p className="text-xs text-slate-500">Found {result.contacts?.length || 0} insights for <b className="text-white">{result.companyName}</b></p>
                   </div>
 
-                  {categories.map(category => (
-                    <div key={category} className="space-y-4">
-                      <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{category}</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {result.contacts.filter(c => c.type === category).map((contact, idx) => (
-                          <ResultCard
-                            key={contact.id || idx}
-                            contact={contact}
-                            onSave={handleSaveContact}
-                            onGenerateOutreach={setSelectedContact}
-                            isSaved={db.saved.some(s => s.value === contact.value)}
-                          />
-                        ))}
-                      </div>
+                  {(!result.contacts || result.contacts.length === 0) ? (
+                    <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl">
+                      <XCircle className="w-10 h-10 text-slate-800 mx-auto mb-4" />
+                      <p className="text-slate-500 text-sm">No specific business contacts found for this entity.</p>
+                      <button 
+                        onClick={() => setQuery("")}
+                        className="mt-4 text-xs text-blue-500 hover:underline font-bold uppercase tracking-widest"
+                      >
+                        Try different brand
+                      </button>
                     </div>
-                  ))}
+                  ) : (
+                    categories.map(category => (
+                      <div key={category} className="space-y-4">
+                        <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{category}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {result.contacts.filter(c => c.type === category).map((contact, idx) => (
+                            <ResultCard
+                              key={contact.id || idx}
+                              contact={contact}
+                              onSave={handleSaveContact}
+                              onGenerateOutreach={setSelectedContact}
+                              isSaved={db.saved?.some(s => s.value === contact.value) || false}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </motion.div>
               )}
 
