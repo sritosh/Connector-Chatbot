@@ -179,7 +179,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {result.contacts.filter(c => c.type === category).map((contact, idx) => (
                             <ResultCard
-                              key={contact.id || idx}
+                              key={`${category}-${contact.value}-${idx}`}
                               contact={contact}
                               onSave={handleSaveContact}
                               onGenerateOutreach={setSelectedContact}
@@ -219,7 +219,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {db.saved.map((contact, idx) => (
                         <ResultCard
-                          key={contact.id || idx}
+                          key={`saved-${contact.id || idx}`}
                           contact={contact}
                           onSave={() => handleDeleteSaved(contact.id)}
                           onGenerateOutreach={setSelectedContact}

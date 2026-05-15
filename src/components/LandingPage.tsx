@@ -130,7 +130,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
               { step: "03", title: "Categorize", desc: "Contacts are automatically grouped into departments like PR or HR." },
               { step: "04", title: "Outreach", desc: "Generate a personalized professional pitch and hit send." }
             ].map((step, i) => (
-              <div key={i} className="relative group text-center">
+              <div key={`step-${i}`} className="relative group text-center">
                 <div className="text-4xl font-black text-white/10 mb-4 group-hover:text-blue-600/30 transition-colors">{step.step}</div>
                 <h3 className="text-lg font-bold mb-2 text-white">{step.title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{step.desc}</p>
@@ -158,7 +158,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
               { icon: Globe, title: "Corporate Discovery", desc: "Discover connections for global startups and heritage brands across industries." },
               { icon: Rocket, title: "Pipeline Ready", desc: "Save and organize your professional leads for your next major campaign." }
             ].map((feature, i) => (
-              <div key={i} className="p-8 bg-white/[0.02] border border-white/5 rounded-3xl hover:border-blue-500/30 transition-all group">
+              <div key={`feature-${i}`} className="p-8 bg-white/[0.02] border border-white/5 rounded-3xl hover:border-blue-500/30 transition-all group">
                 <div className="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 border border-blue-500/10 group-hover:bg-blue-600 group-hover:text-white transition-all text-blue-500">
                   <feature.icon className="w-6 h-6" />
                 </div>
@@ -201,7 +201,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
                 a: "Our AI reads the company's public mission and the contact category to help you draft professional, relevant pitches that get higher response rates."
               }
             ].map((item, i) => (
-              <FAQItem key={i} question={item.q} answer={item.a} />
+              <FAQItem key={`faq-${i}`} question={item.q} answer={item.a} />
             ))}
           </div>
         </div>
