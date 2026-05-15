@@ -1,6 +1,6 @@
 export interface Contact {
   id: string;
-  type: 'Partnership' | 'Sponsorship' | 'Careers' | 'Media' | 'Support' | 'General' | 'Social';
+  type: 'Partnership' | 'Sponsorship' | 'Careers' | 'Media' | 'Support' | 'General' | 'Social' | 'LinkedIn' | 'Executive';
   value: string;
   source: string;
   confidence: 'High' | 'Medium' | 'Low';

@@ -5,9 +5,14 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
 
 export const geminiService = {
   async discoverContacts(companyName: string): Promise<SearchResult> {
-    const prompt = `SEARCH FOR PUBLIC BUSINESS CONTACTS: "${companyName}".
-    Find ONLY public professional data: Partnerships, Sponsorships, Media/PR, Careers, Support, General, Socials.
+    const prompt = `SEARCH FOR PUBLIC BUSINESS CONTACTS & LINKEDIN LEADS: "${companyName}".
+    Find ONLY public professional data: 
+    1. Standard: Partnerships, Sponsorships, Media/PR, Careers, Support, General.
+    2. Social & Digital: Official socials (Twitter, Instagram).
+    3. LinkedIn Leads: Find LinkedIn profiles of specific key decision makers (e.g., Marketing Head, Marketing Manager, Founder, CEO).
+    
     Return JSON format. Use High/Medium/Low confidence based on source officiality.
+    For LinkedIn leads, use the type 'LinkedIn' or 'Executive'.
     Be fast and accurate.`;
 
     const response = await ai.models.generateContent({
@@ -32,7 +37,7 @@ export const geminiService = {
                   id: { type: Type.STRING },
                   type: { 
                     type: Type.STRING,
-                    enum: ['Partnership', 'Sponsorship', 'Careers', 'Media', 'Support', 'General', 'Social']
+                    enum: ['Partnership', 'Sponsorship', 'Careers', 'Media', 'Support', 'General', 'Social', 'LinkedIn', 'Executive']
                   },
                   value: { type: Type.STRING },
                   source: { type: Type.STRING },

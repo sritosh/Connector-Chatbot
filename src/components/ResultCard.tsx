@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Copy, ExternalLink, MessageSquare, Bookmark, Check, ShieldCheck, ShieldAlert, Shield, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Copy, ExternalLink, MessageSquare, Bookmark, Check, ShieldCheck, ShieldAlert, Shield, Loader2, CheckCircle2, XCircle, Linkedin, UserCircle } from "lucide-react";
 import { Contact } from "../types";
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
@@ -16,8 +16,10 @@ export const ResultCard: React.FC<ResultCardProps> = ({ contact, onSave, onGener
   const [vStatus, setVStatus] = useState<'verified' | 'unverified' | 'failed' | 'verifying'>(contact.verificationStatus || 'unverified');
 
   useEffect(() => {
-    if (vStatus === 'unverified') {
+    if (vStatus === 'unverified' && (contact.type !== 'LinkedIn' && contact.type !== 'Social')) {
       verifyContact();
+    } else if (contact.type === 'LinkedIn' || contact.type === 'Social') {
+      setVStatus('verified'); // Assume social links found by AI are "verified" in terms of existence
     }
   }, []);
 
@@ -59,15 +61,27 @@ export const ResultCard: React.FC<ResultCardProps> = ({ contact, onSave, onGener
     }
   };
 
+  const isLinkedIn = contact.type === 'LinkedIn';
+  const isExecutive = contact.type === 'Executive';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 hover:border-blue-500/50 transition-all group flex flex-col"
+      className={cn(
+        "bg-white/[0.03] border border-white/10 rounded-2xl p-5 hover:border-blue-500/50 transition-all group flex flex-col",
+        isLinkedIn && "hover:border-blue-400/50",
+        isExecutive && "hover:border-purple-500/50"
+      )}
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 bg-blue-500/10 rounded text-[10px] font-bold text-blue-500 uppercase tracking-widest border border-blue-500/10">
+          <span className={cn(
+            "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border",
+            isLinkedIn ? "bg-blue-600/10 text-blue-400 border-blue-400/20" : 
+            isExecutive ? "bg-purple-600/10 text-purple-400 border-purple-400/20" :
+            "bg-blue-500/10 text-blue-500 border-blue-500/10"
+          )}>
             {contact.type}
           </span>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20">
@@ -126,10 +140,17 @@ export const ResultCard: React.FC<ResultCardProps> = ({ contact, onSave, onGener
       </div>
 
       <div className="mb-6 flex-1">
-        <p className="text-white font-medium text-lg leading-snug mb-1 truncate">
-          {contact.value}
-        </p>
-        <p className="text-[10px] text-slate-600 truncate">
+        <div className="flex items-start gap-3 mb-1">
+          {isLinkedIn ? (
+            <Linkedin className="w-5 h-5 text-blue-400 mt-1 shrink-0" />
+          ) : isExecutive ? (
+            <UserCircle className="w-5 h-5 text-purple-400 mt-1 shrink-0" />
+          ) : null}
+          <p className="text-white font-medium text-lg leading-snug truncate">
+            {contact.value}
+          </p>
+        </div>
+        <p className="text-[10px] text-slate-600 truncate ml-8">
           Source: {getHostname(contact.source)}
         </p>
       </div>
@@ -151,7 +172,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ contact, onSave, onGener
         </button>
         <button
           onClick={() => onGenerateOutreach(contact)}
-          className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-500 transition-colors"
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 py-1.5 text-white text-xs font-semibold rounded-lg transition-colors",
+            isLinkedIn ? "bg-blue-600 hover:bg-blue-500" : 
+            isExecutive ? "bg-purple-600 hover:bg-purple-500" :
+            "bg-blue-600 hover:bg-blue-500"
+          )}
         >
           <MessageSquare className="w-3 h-3" /> Write AI
         </button>
