@@ -4,11 +4,25 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import dns from "dns";
+import { GoogleGenAI, Type } from "@google/genai";
 
 const { resolveMx } = dns.promises;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Lazy init Gemini
+let genAI: GoogleGenAI | null = null;
+const getAI = () => {
+  if (!genAI) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is missing in server environment");
+    }
+    genAI = new GoogleGenAI({ apiKey });
+  }
+  return genAI;
+};
 
 async function startServer() {
   const app = express();
@@ -17,7 +31,7 @@ async function startServer() {
   app.use(express.json());
 
   // Simple JSON DB for history and saved contacts
-  const DB_PATH = path.join(__dirname, "db.json");
+  const DB_PATH = path.join(process.cwd(), "db.json");
   if (!fs.existsSync(DB_PATH)) {
     fs.writeFileSync(DB_PATH, JSON.stringify({ history: [], saved: [] }));
   }
@@ -27,7 +41,89 @@ async function startServer() {
 
   // API Routes
   app.get("/api/db", (req, res) => {
-    res.json(getDB());
+    try {
+      res.json(getDB());
+    } catch (e) {
+      res.json({ history: [], saved: [] });
+    }
+  });
+
+  app.post("/api/discover", async (req, res) => {
+    const { companyName } = req.body;
+    if (!companyName) return res.status(400).json({ error: "Company name required" });
+
+    try {
+      const ai = getAI();
+      const prompt = `SEARCH FOR PUBLIC BUSINESS CONTACTS & LINKEDIN LEADS: "${companyName}".
+      Find ONLY public professional data: 
+      1. Standard: Partnerships, Sponsorships, Media/PR, Careers, Support, General.
+      2. Social & Digital: Official socials (Twitter, Instagram).
+      3. LinkedIn Leads: Find LinkedIn profiles of specific key decision makers (e.g., Marketing Head, Marketing Manager, Founder, CEO).
+      
+      Return JSON format. Use High/Medium/Low confidence based on source officiality.
+      For LinkedIn leads, use the type 'LinkedIn' or 'Executive'.
+      Be fast and accurate.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              companyName: { type: Type.STRING },
+              contacts: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    id: { type: Type.STRING },
+                    type: { 
+                      type: Type.STRING,
+                      enum: ['Partnership', 'Sponsorship', 'Careers', 'Media', 'Support', 'General', 'Social', 'LinkedIn', 'Executive']
+                    },
+                    value: { type: Type.STRING },
+                    source: { type: Type.STRING },
+                    confidence: { type: Type.STRING, enum: ['High', 'Medium', 'Low'] }
+                  },
+                  required: ['id', 'type', 'value', 'source', 'confidence']
+                }
+              }
+            },
+            required: ['companyName', 'contacts']
+          }
+        }
+      });
+
+      const text = response.response.text();
+      res.json(JSON.parse(text));
+    } catch (error: any) {
+      console.error("Gemini Discover Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/outreach", async (req, res) => {
+    const { contactValue, companyName, purpose } = req.body;
+    try {
+      const ai = getAI();
+      const prompt = `Write a professional, concise, and modern outreach message for ${companyName}.
+      Target: ${contactValue}
+      Purpose: ${purpose}
+      Tone: Professional, ambitious, and strategic.
+      Avoid corporate fluff. Be direct. Max 150 words.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+      });
+
+      res.json({ text: response.response.text() });
+    } catch (error: any) {
+      console.error("Gemini Outreach Error:", error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.post("/api/history", (req, res) => {
@@ -95,7 +191,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(__dirname, "dist");
+    const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

@@ -210,14 +210,14 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                     <p className="text-xs text-slate-600 mt-1">Bookmarked contacts for your outreach campaigns.</p>
                   </div>
                   
-                  {db.saved.length === 0 ? (
+                  {db.saved?.length === 0 ? (
                     <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl">
                       <Bookmark className="w-10 h-10 text-slate-800 mx-auto mb-4" />
                       <p className="text-slate-500 text-sm">Your lead list is currently empty.</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {db.saved.map((contact, idx) => (
+                      {db.saved?.map((contact, idx) => (
                         <ResultCard
                           key={`saved-${contact.id || idx}`}
                           contact={contact}
@@ -237,7 +237,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-500">Search Logs</h2>
                   </div>
                   <div className="space-y-3">
-                    {db.history.map((item: HistoryItem) => (
+                    {db.history?.map((item: HistoryItem) => (
                       <div
                         key={item.id}
                         onClick={() => {
