@@ -16,6 +16,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
   const [activeTab, setActiveTab] = useState("search");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [db, setDb] = useState<DBState>({ history: [], saved: [] });
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
@@ -40,6 +41,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
 
     setLoading(true);
     setResult(null);
+    setError(null);
 
     try {
       const data = await geminiService.discoverContacts(query);
@@ -52,8 +54,9 @@ export function Dashboard({ onGoHome }: DashboardProps) {
         body: JSON.stringify({ query, result: data }),
       });
       fetchDB();
-    } catch (e) {
+    } catch (e: any) {
       console.error("Search failed", e);
+      setError(e.message || "Something went wrong during discovery.");
     } finally {
       setLoading(false);
     }
@@ -144,6 +147,26 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                     <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1 text-center">Speed Tip</p>
                     <p className="text-[11px] text-slate-400 text-center italic">Searching for specific brand names (e.g. "Nike" vs "Shoes") yields 3x faster results.</p>
                   </div>
+                </motion.div>
+              )}
+
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="max-w-md mx-auto p-8 bg-red-500/5 border border-red-500/10 rounded-3xl text-center space-y-4"
+                >
+                  <XCircle className="w-12 h-12 text-red-500 mx-auto opacity-50" />
+                  <div className="space-y-2">
+                    <h3 className="text-white font-bold">Search Interrupted</h3>
+                    <p className="text-slate-500 text-sm">{error}</p>
+                  </div>
+                  <button 
+                    onClick={() => handleSearch({ preventDefault: () => {} } as any)}
+                    className="px-6 py-2 bg-red-500/10 text-red-500 text-xs font-bold uppercase tracking-widest rounded-xl border border-red-500/20 hover:bg-red-500/20 transition-all"
+                  >
+                    Retry Scan
+                  </button>
                 </motion.div>
               )}
 

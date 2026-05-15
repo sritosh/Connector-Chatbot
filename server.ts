@@ -65,9 +65,9 @@ async function startServer() {
       Be fast and accurate.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3-flash-preview",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
+        config: {
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
@@ -96,8 +96,8 @@ async function startServer() {
         }
       });
 
-      const text = response.response.text();
-      res.json(JSON.parse(text));
+      const text = response.text;
+      res.json(JSON.parse(text || "{}"));
     } catch (error: any) {
       console.error("Gemini Discover Error:", error);
       res.status(500).json({ error: error.message });
@@ -115,11 +115,11 @@ async function startServer() {
       Avoid corporate fluff. Be direct. Max 150 words.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3-flash-preview",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
       });
 
-      res.json({ text: response.response.text() });
+      res.json({ text: response.text });
     } catch (error: any) {
       console.error("Gemini Outreach Error:", error);
       res.status(500).json({ error: error.message });

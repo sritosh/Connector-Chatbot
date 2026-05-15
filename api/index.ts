@@ -60,9 +60,9 @@ app.post("/api/discover", async (req, res) => {
     Be fast and accurate.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-3-flash-preview",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
+      config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -91,8 +91,8 @@ app.post("/api/discover", async (req, res) => {
       }
     });
 
-    const text = response.response.text();
-    res.json(JSON.parse(text));
+    const text = response.text;
+    res.json(JSON.parse(text || "{}"));
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -109,11 +109,11 @@ app.post("/api/outreach", async (req, res) => {
     Avoid corporate fluff. Be direct. Max 150 words.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-3-flash-preview",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 
-    res.json({ text: response.response.text() });
+    res.json({ text: response.text });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
