@@ -12,12 +12,17 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+  const isSupabaseConfigured = !!(supabaseUrl && !supabaseUrl.includes('placeholder'));
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if Supabase is actually configured
-    if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
-      setError("Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your AI Studio Secrets (Settings menu).");
+    if (!isSupabaseConfigured) {
+      const isVercel = window.location.hostname.includes('vercel.app');
+      setError(isVercel 
+        ? "Supabase variables are missing in Vercel settings. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are added to your Vercel Project Settings." 
+        : "Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to AI Studio Secrets (Settings menu).");
       return;
     }
 
@@ -126,8 +131,13 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
             <div className="space-y-3">
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group"
+                disabled={loading || !isSupabaseConfigured}
+                className={cn(
+                  "w-full rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2 group",
+                  isSupabaseConfigured 
+                    ? "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20" 
+                    : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                )}
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
