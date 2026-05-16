@@ -20,6 +20,18 @@ export function Dashboard({ onGoHome }: DashboardProps) {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [db, setDb] = useState<DBState>({ history: [], saved: [] });
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [intent, setIntent] = useState("Partnership Inquiry");
+
+  const intents = [
+    "Sponsorship",
+    "Freelance Work",
+    "Partnership Inquiry",
+    "Internship Request",
+    "Job Inquiry",
+    "Creator Collaboration",
+    "Media/Press",
+    "General Networking"
+  ];
 
   useEffect(() => {
     fetchDB();
@@ -44,14 +56,14 @@ export function Dashboard({ onGoHome }: DashboardProps) {
     setError(null);
 
     try {
-      const data = await geminiService.discoverContacts(query);
-      setResult(data);
+      const data = await geminiService.discoverContacts(query, intent);
+      setResult({ ...data, intent });
       
       // Save to history
       await fetch("/api/history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, result: data }),
+        body: JSON.stringify({ query, result: { ...data, intent } }),
       });
       fetchDB();
     } catch (e: any) {
@@ -85,42 +97,82 @@ export function Dashboard({ onGoHome }: DashboardProps) {
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Search Header */}
         <div className="p-8 pb-4">
-          <div className="max-w-3xl mx-auto w-full relative">
-            <div className="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full" />
-              <form onSubmit={handleSearch} className="relative h-16 bg-card-bg border border-white/10 rounded-2xl flex items-center px-4 gap-4 shadow-2xl focus-within:border-blue-500/50 transition-all">
-                <Search className={cn("w-6 h-6 text-blue-500 shrink-0 transition-transform", loading && "scale-90 opacity-50")} />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search brands, startups, or companies..."
-                  className="bg-transparent border-none outline-none text-lg text-white flex-1 placeholder-slate-700 font-medium h-full"
-                />
-                <div className="flex items-center gap-3 shrink-0">
-                   {query && !loading && (
-                     <button 
-                       type="button"
-                       onClick={() => setQuery("")}
-                       className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-colors"
-                     >
-                       <X className="w-4 h-4" />
-                     </button>
-                   )}
-                   <button 
-                     type="submit"
-                     disabled={loading || !query.trim()}
-                     className="bg-blue-600 text-white h-11 px-6 rounded-xl text-sm font-bold hover:bg-blue-500 transition-all disabled:opacity-30 flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
-                   >
-                     {loading ? (
-                       <>
-                         <Loader2 className="w-4 h-4 animate-spin" />
-                         <span className="hidden sm:inline">Searching...</span>
-                       </>
-                     ) : (
-                       "Scan Web"
+          <div className="max-w-4xl mx-auto w-full space-y-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full" />
+                <form onSubmit={handleSearch} className="relative h-18 bg-card-bg border border-white/10 rounded-[2rem] flex items-center px-4 gap-4 shadow-2xl focus-within:border-white/20 transition-all">
+                  <div className="p-3 bg-blue-500/10 rounded-2xl">
+                    <Search className={cn("w-6 h-6 text-blue-500 shrink-0 mx-auto", loading && "animate-pulse")} />
+                  </div>
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search brand, startup, or agency..."
+                    className="bg-transparent border-none outline-none text-xl text-white flex-1 placeholder-slate-700 font-bold h-full"
+                  />
+                  <div className="flex items-center gap-3 shrink-0">
+                     {query && !loading && (
+                       <button 
+                         type="button"
+                         onClick={() => setQuery("")}
+                         className="p-2 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors"
+                       >
+                         <X className="w-5 h-5 text-slate-700" />
+                       </button>
                      )}
-                   </button>
-                </div>
-              </form>
+                     <button 
+                       type="submit"
+                       disabled={loading || !query.trim()}
+                       className="bg-blue-600 text-white h-12 px-8 rounded-2xl text-sm font-bold hover:bg-blue-500 transition-all disabled:opacity-30 flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
+                     >
+                       {loading ? (
+                         <>
+                           <Loader2 className="w-4 h-4 animate-spin" />
+                           <span className="hidden sm:inline">Discovery Active</span>
+                         </>
+                       ) : (
+                         "Discover Contacts"
+                       )}
+                     </button>
+                  </div>
+                </form>
+            </div>
+
+            {/* Intent Selector */}
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Prioritize Results Based on Intent</p>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {intents.map(i => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setIntent(i);
+                      if (query.trim()) {
+                        // Use a slight timeout to ensure state is updated or just call with the new value
+                        setLoading(true);
+                        geminiService.discoverContacts(query, i)
+                          .then(data => {
+                            setResult({ ...data, intent: i });
+                            setLoading(false);
+                          })
+                          .catch(e => {
+                            setError(e.message);
+                            setLoading(false);
+                          });
+                      }
+                    }}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-[11px] font-bold transition-all border",
+                      intent === i 
+                        ? "bg-white text-black border-white shadow-lg" 
+                        : "bg-white/5 text-slate-400 border-white/10 hover:bg-white/10 hover:text-slate-200"
+                    )}
+                  >
+                    {i}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -196,13 +248,13 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                       </button>
                     </div>
                   ) : (
-                    categories.map(category => (
-                      <div key={category} className="space-y-4">
+                    categories.map((category, catIdx) => (
+                      <div key={`cat-${category}-${catIdx}`} className="space-y-4">
                         <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{category}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {result.contacts.filter(c => c.type === category).map((contact, idx) => (
                             <ResultCard
-                              key={`${category}-${contact.value}-${idx}`}
+                              key={`res-${category}-${contact.id || contact.value}-${idx}`}
                               contact={contact}
                               onSave={handleSaveContact}
                               onGenerateOutreach={setSelectedContact}
@@ -242,7 +294,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {db.saved?.map((contact, idx) => (
                         <ResultCard
-                          key={`saved-${contact.id || idx}`}
+                          key={`saved-${contact.id || contact.value || idx}`}
                           contact={contact}
                           onSave={() => handleDeleteSaved(contact.id)}
                           onGenerateOutreach={setSelectedContact}
@@ -333,8 +385,10 @@ export function Dashboard({ onGoHome }: DashboardProps) {
         <AnimatePresence>
           {selectedContact && (
             <OutreachModal
+              isOpen={!!selectedContact}
               contact={selectedContact}
               companyName={result?.companyName || "the company"}
+              defaultIntent={result?.intent || intent}
               onClose={() => setSelectedContact(null)}
             />
           )}
