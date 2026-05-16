@@ -386,7 +386,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
 
         {/* Footer */}
         <footer className="px-8 py-3 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-600">
-          <p>CONNECTOR v1.2.1 — Aggregating public business data from official sources only.</p>
+          <p>CONNECTOR v1.2.2 — Aggregating public business data from official sources only.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-slate-400">Compliance</a>
             <a href="#" className="hover:text-slate-400">Terms</a>
