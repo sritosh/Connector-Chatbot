@@ -99,7 +99,7 @@ async function startServer() {
       Return JSON structure strictly. Ensure scores reflect the User Intent accurately.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-1.5-flash",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         config: {
           responseMimeType: "application/json",
@@ -176,7 +176,7 @@ async function startServer() {
       - Formatting: Clean and readable.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-1.5-flash",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
       });
 

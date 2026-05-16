@@ -1,6 +1,6 @@
 {
   "name": "Connector",
-  "description": "AI-powered business contact discovery platform for finding publicly available professional contact information.",
+  "description": "AI-powered business contact discovery platform v1.2.1. Find professional contacts, rank relevance, and generate outreach messages.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

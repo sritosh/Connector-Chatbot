@@ -90,6 +90,17 @@ export function Dashboard({ onGoHome }: DashboardProps) {
 
   const categories = (result && result.contacts) ? Array.from(new Set(result.contacts.map(c => c.type))) : [];
 
+  const getFormattedError = (err: string | null) => {
+    if (!err) return null;
+    try {
+      // If the error is a stringified JSON (common in AI responses or proxy errors)
+      const parsed = JSON.parse(err);
+      return parsed.message || parsed.error?.message || err;
+    } catch {
+      return err;
+    }
+  };
+
   return (
     <div className="flex h-screen bg-brand-bg text-slate-200 overflow-hidden">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onGoHome={onGoHome} />
@@ -211,7 +222,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
                   <XCircle className="w-12 h-12 text-red-500 mx-auto opacity-50" />
                   <div className="space-y-2">
                     <h3 className="text-white font-bold">Search Interrupted</h3>
-                    <p className="text-slate-500 text-sm">{error}</p>
+                    <p className="text-slate-500 text-sm max-w-sm mx-auto">{getFormattedError(error)}</p>
                   </div>
                   <button 
                     onClick={() => handleSearch({ preventDefault: () => {} } as any)}
@@ -375,7 +386,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
 
         {/* Footer */}
         <footer className="px-8 py-3 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-600">
-          <p>CONNECTOR v1.2.0 — Aggregating public business data from official sources only.</p>
+          <p>CONNECTOR v1.2.1 — Aggregating public business data from official sources only.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-slate-400">Compliance</a>
             <a href="#" className="hover:text-slate-400">Terms</a>
