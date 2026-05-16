@@ -12,19 +12,27 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("App mounted, view:", view);
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Session check:", session?.user ? "User present" : "No user");
       setUser(session?.user ?? null);
-      if (session?.user) setView("dashboard");
+      if (session?.user) {
+        setView("dashboard");
+      }
       setLoading(false);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth Event:", event, session?.user ? "User present" : "No user");
       setUser(session?.user ?? null);
       if (session?.user) {
         setIsGuest(false);
         setView("dashboard");
+      } else if (event === 'SIGNED_OUT') {
+        setView("landing");
+        setIsGuest(false);
       }
     });
 
@@ -39,18 +47,43 @@ export default function App() {
     );
   }
 
+  // Primary rendering logic based on 'view' state
   if (view === "auth") {
-    return <Auth onGuestAccess={() => setView("landing")} />;
+    return (
+      <Auth 
+        onGuestAccess={() => {
+          console.log("Auth -> Guest Access");
+          setIsGuest(true);
+          setView("dashboard");
+        }} 
+      />
+    );
   }
 
-  if (view === "landing" && !user && !isGuest) {
-    return <LandingPage onStart={() => setView("dashboard")} onLogin={() => setView("auth")} />;
-  }
-
-  // If logged in or guest, or in dashboard view
-  if (view === "dashboard" || user || isGuest) {
+  if (view === "dashboard") {
+    // If trying to access dashboard, check if authorized (user or guest)
+    if (user || isGuest) {
+      return <Dashboard onGoHome={() => setView("landing")} />;
+    }
+    // If not authorized, redirect to auth (or landing)
+    // The user wants login to be optional, so maybe allow dashboard as guest by default?
+    // Let's default to guest if they just click "Start Searching"
+    console.log("Dashboard requested but not logged in. Defaulting to Guest.");
+    setIsGuest(true);
     return <Dashboard onGoHome={() => setView("landing")} />;
   }
 
-  return <LandingPage onStart={() => setView("dashboard")} onLogin={() => setView("auth")} />;
+  // Default: Landing Page
+  return (
+    <LandingPage 
+      onStart={() => {
+        console.log("Landing -> Dashboard");
+        setView("dashboard");
+      }} 
+      onLogin={() => {
+        console.log("Landing -> Auth");
+        setView("auth");
+      }} 
+    />
+  );
 }
