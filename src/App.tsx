@@ -6,7 +6,7 @@ import { supabase } from "./lib/supabase";
 import { User } from "@supabase/supabase-js";
 
 export default function App() {
-  const [view, setView] = useState<"landing" | "dashboard">("landing");
+  const [view, setView] = useState<"landing" | "dashboard" | "auth">("landing");
   const [user, setUser] = useState<User | null>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -15,13 +15,17 @@ export default function App() {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) setView("dashboard");
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) setIsGuest(false);
+      if (session?.user) {
+        setIsGuest(false);
+        setView("dashboard");
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -35,14 +39,18 @@ export default function App() {
     );
   }
 
-  // Auth Gate - Allow access if user is logged in OR is a guest
-  if (!user && !isGuest) {
-    return <Auth onGuestAccess={() => setIsGuest(true)} />;
+  if (view === "auth") {
+    return <Auth onGuestAccess={() => setView("landing")} />;
   }
 
-  if (view === "landing") {
-    return <LandingPage onStart={() => setView("dashboard")} />;
+  if (view === "landing" && !user && !isGuest) {
+    return <LandingPage onStart={() => setView("dashboard")} onLogin={() => setView("auth")} />;
   }
 
-  return <Dashboard onGoHome={() => setView("landing")} />;
+  // If logged in or guest, or in dashboard view
+  if (view === "dashboard" || user || isGuest) {
+    return <Dashboard onGoHome={() => setView("landing")} />;
+  }
+
+  return <LandingPage onStart={() => setView("dashboard")} onLogin={() => setView("auth")} />;
 }

@@ -4,6 +4,7 @@ import { Search, Zap, Shield, Rocket, Globe, ChevronRight, ChevronDown } from "l
 
 interface LandingPageProps {
   onStart: () => void;
+  onLogin: () => void;
 }
 
 interface FAQItemProps {
@@ -43,7 +44,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
   );
 }
 
-export function LandingPage({ onStart }: LandingPageProps) {
+export function LandingPage({ onStart, onLogin }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-brand-bg text-slate-200 selection:bg-blue-500/30 font-sans">
       {/* Navbar */}
@@ -56,6 +57,12 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
+            <button 
+              onClick={onLogin}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 transition-all font-semibold"
+            >
+              Sign In
+            </button>
           </div>
         </div>
       </nav>
