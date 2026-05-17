@@ -39,9 +39,15 @@ export default function App() {
       if (session?.user) {
         setIsGuest(false);
         setView("dashboard");
+        
+        // Clean up URL hash/search if coming from an auth redirect
+        if (window.location.hash || window.location.search) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
       } else if (event === 'SIGNED_OUT') {
         setView("landing");
         setIsGuest(false);
+        window.history.replaceState(null, '', '/');
       }
     });
 
@@ -85,6 +91,7 @@ export default function App() {
   // Default: Landing Page
   return (
     <LandingPage 
+      user={user}
       onStart={() => {
         console.log("Landing -> Dashboard");
         setView("dashboard");

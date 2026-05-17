@@ -5,6 +5,7 @@ import { Search, Zap, Shield, Rocket, Globe, ChevronRight, ChevronDown } from "l
 interface LandingPageProps {
   onStart: () => void;
   onLogin: () => void;
+  user: any;
 }
 
 interface FAQItemProps {
@@ -44,7 +45,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
   );
 }
 
-export function LandingPage({ onStart, onLogin }: LandingPageProps) {
+export function LandingPage({ onStart, onLogin, user }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-brand-bg text-slate-200 selection:bg-blue-500/30 font-sans">
       {/* Navbar */}
@@ -57,12 +58,21 @@ export function LandingPage({ onStart, onLogin }: LandingPageProps) {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
-            <button 
-              onClick={onLogin}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 transition-all font-semibold"
-            >
-              Sign In
-            </button>
+            {user ? (
+              <button 
+                onClick={onStart}
+                className="px-4 py-2 bg-blue-600 border border-blue-500 rounded-lg text-white hover:bg-blue-500 transition-all font-semibold"
+              >
+                Go to Dashboard
+              </button>
+            ) : (
+              <button 
+                onClick={onLogin}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 transition-all font-semibold"
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </nav>
