@@ -37,7 +37,7 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
           password,
         });
         if (error) throw error;
-        setMessage('Check your email for the confirmation link!');
+        setMessage('Account created successfully!');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
