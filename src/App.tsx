@@ -12,7 +12,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("App mounted, path:", window.location.pathname);
+    console.log("Connector App v1.3.0 mounted, path:", window.location.pathname);
     
     // Simple path-to-view mapping
     const path = window.location.pathname;

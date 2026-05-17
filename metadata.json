@@ -1,6 +1,6 @@
 {
   "name": "Connector",
-  "description": "AI-powered business contact discovery platform v1.2.2. Find professional contacts, rank relevance, and generate outreach messages.",
+  "description": "AI-powered business contact discovery platform v1.3.0. Features professional lead discovery, relevance ranking, and secure OAuth (GitHub/Google) integration.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

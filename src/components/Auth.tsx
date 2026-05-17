@@ -231,7 +231,7 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
         </div>
         
         <p className="mt-8 text-center text-slate-600 text-[10px] uppercase tracking-[0.2em] font-medium">
-          Connector AI Security Standard
+          Connector AI Security Standard • v1.3.0
         </p>
       </motion.div>
     </div>
