@@ -12,7 +12,16 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("App mounted, view:", view);
+    console.log("App mounted, path:", window.location.pathname);
+    
+    // Simple path-to-view mapping
+    const path = window.location.pathname;
+    if (path === "/dashboard") {
+      setView("dashboard");
+    } else if (path === "/auth" || path === "/auth/callback") {
+      setView("auth");
+    }
+
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("Session check:", session?.user ? "User present" : "No user");

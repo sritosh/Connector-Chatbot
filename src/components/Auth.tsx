@@ -31,10 +31,15 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
     setMessage(null);
 
     try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: redirectUrl,
+          },
         });
         if (error) throw error;
         setMessage('Check your email for the confirmation link!');
@@ -48,6 +53,24 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
     } catch (err: any) {
       setError(err.message);
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthSignIn = async (provider: 'github' | 'google') => {
+    if (!isSupabaseConfigured) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setError(err.message);
       setLoading(false);
     }
   };
@@ -148,6 +171,36 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
                   </>
                 )}
               </button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/5"></div>
+                </div>
+                <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest">
+                  <span className="bg-brand-bg px-4 text-slate-500">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleOAuthSignIn('github')}
+                  disabled={loading || !isSupabaseConfigured}
+                  className="bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-2.5 text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                >
+                  <Github className="w-4 h-4" />
+                  GitHub
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOAuthSignIn('google' as any)} // Using 'google' as provider
+                  disabled={loading || !isSupabaseConfigured}
+                  className="bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-2.5 text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                >
+                  <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5" alt="Google" />
+                  Google
+                </button>
+              </div>
 
               <button
                 type="button"
