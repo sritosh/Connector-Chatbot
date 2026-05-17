@@ -23,7 +23,7 @@ const app = express();
 app.use(express.json());
 
 // For Vercel, we use /tmp for temp db if needed, but it's not persistent.
-// Ideally, the user should move to Firebase or another database.
+// Ideally, the user should move to Supabase or another database.
 const DB_PATH = "/tmp/db.json";
 if (!fs.existsSync(DB_PATH)) {
   fs.writeFileSync(DB_PATH, JSON.stringify({ history: [], saved: [] }));
