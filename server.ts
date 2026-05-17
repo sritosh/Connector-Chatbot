@@ -149,7 +149,7 @@ async function startServer() {
   });
 
   app.post("/api/outreach", async (req, res) => {
-    const { contactValue, companyName, intent, tone, length } = req.body;
+    const { contactValue, companyName, intent, tone, length, context } = req.body;
     
     const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
@@ -167,10 +167,12 @@ async function startServer() {
       Intent/Purpose: ${intent}
       Tone: ${tone || 'Professional'}
       Target Length: ${length || 'Medium'}
+      ${context ? `ADDITIONAL CUSTOM CONTEXT: ${context}` : ''}
 
       GUIDELINES:
       - AI-Native quality: No fluff, no "I hope this email finds you well".
       - Personalization: Mention the likely platform context if relevant.
+      ${context ? '- INTEGRATION: Naturally weave the "ADDITIONAL CUSTOM CONTEXT" into the message.' : ''}
       - Call to Action: Clear and low-friction.
       - Formatting: Clean and readable.`;
 

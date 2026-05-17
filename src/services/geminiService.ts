@@ -6,6 +6,7 @@ export interface OutreachOptions {
   intent: string;
   tone: string;
   length: string;
+  context?: string;
 }
 
 export const geminiService = {

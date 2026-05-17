@@ -37,6 +37,7 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
+  const [context, setContext] = useState("");
 
   const generate = async () => {
     setGenerating(true);
@@ -47,7 +48,8 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
         companyName,
         intent,
         tone,
-        length
+        length,
+        context: context.trim()
       });
       
       // Simulate typing effect
@@ -109,9 +111,9 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 h-[500px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 h-[600px] max-h-[85vh]">
             {/* Sidebar Controls */}
-            <div className="p-6 border-r border-white/5 space-y-6 bg-black/20">
+            <div className="p-6 border-r border-white/5 space-y-6 bg-black/20 overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Outreach Type</label>
                 <div className="space-y-1">
@@ -155,6 +157,16 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
                 </div>
               </div>
 
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Custom Context (Optional)</label>
+                <textarea
+                  value={context}
+                  onChange={(e) => setContext(e.target.value)}
+                  placeholder="Describe your specific background, achievements, or what you want to mention..."
+                  className="w-full h-24 bg-white/5 border border-white/10 text-white text-[11px] rounded-lg p-3 outline-none focus:border-blue-500/50 resize-none custom-scrollbar placeholder:text-slate-600"
+                />
+              </div>
+
               <button
                 onClick={generate}
                 disabled={generating}
@@ -166,8 +178,8 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
             </div>
 
             {/* Main Content Area */}
-            <div className="col-span-2 p-8 flex flex-col relative bg-gradient-to-br from-transparent to-blue-500/[0.02]">
-              <div className="flex-1 rounded-2xl bg-white/[0.03] border border-white/5 p-6 overflow-y-auto font-serif leading-relaxed text-slate-300 text-sm whitespace-pre-wrap">
+            <div className="col-span-2 p-8 flex flex-col relative bg-gradient-to-br from-transparent to-blue-500/[0.02] overflow-hidden">
+              <div className="flex-1 rounded-2xl bg-white/[0.03] border border-white/5 p-6 overflow-y-auto custom-scrollbar font-serif leading-relaxed text-slate-300 text-sm whitespace-pre-wrap">
                 {message || (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
                     <Sparkles className="w-12 h-12 text-blue-400" />
