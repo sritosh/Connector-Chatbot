@@ -12,6 +12,12 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const getURL = () => {
+      let url = window?.location?.origin || '';
+      url = url.endsWith('/') ? url.slice(0, -1) : url;
+      return url;
+    };
+
     console.log("Connector App v1.3.0 mounted, path:", window.location.pathname);
     
     // Simple path-to-view mapping
@@ -28,6 +34,10 @@ export default function App() {
       setUser(session?.user ?? null);
       if (session?.user) {
         setView("dashboard");
+        // Clear auth params from URL if on callback
+        if (path === "/auth/callback" || window.location.hash || window.location.search.includes('code=')) {
+          window.history.replaceState({}, document.title, `${getURL()}/dashboard`);
+        }
       }
       setLoading(false);
     });
@@ -39,9 +49,17 @@ export default function App() {
       if (session?.user) {
         setIsGuest(false);
         setView("dashboard");
+        
+        // If we just signed in or handled a challenge, ensure we are on the dashboard path
+        if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+           if (window.location.pathname !== '/dashboard') {
+             window.history.replaceState({}, document.title, `${getURL()}/dashboard`);
+           }
+        }
       } else if (event === 'SIGNED_OUT') {
         setView("landing");
         setIsGuest(false);
+        window.history.replaceState({}, document.title, getURL());
       }
     });
 
