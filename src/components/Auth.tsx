@@ -37,13 +37,19 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
           password,
         });
         if (error) throw error;
-        setMessage('Account created successfully!');
+        setMessage('Confirmation email sent! Please check your inbox and click the link to activate your account.');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes('Email not confirmed')) {
+            setError('Please check your email and click the link to confirm your account before signing in.');
+          } else {
+            throw error;
+          }
+        }
       }
     } catch (err: any) {
       setError(err.message);
