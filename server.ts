@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import dns from "dns";
 import { GoogleGenAI, Type } from "@google/genai";
+// No dotenv import here to avoid platform conflicts
 
 const { resolveMx } = dns.promises;
 
@@ -12,11 +13,19 @@ const { resolveMx } = dns.promises;
 let genAI: GoogleGenAI | null = null;
 const getAI = () => {
   if (!genAI) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is missing in server environment");
+      // We don't throw here to avoid crashing, but the routes will catch it
+      return null;
     }
-    genAI = new GoogleGenAI({ apiKey });
+    genAI = new GoogleGenAI({ 
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
   }
   return genAI;
 };
@@ -52,8 +61,16 @@ async function startServer() {
     const { companyName, intent } = req.body;
     if (!companyName) return res.status(400).json({ error: "Company name required" });
 
+    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ 
+        error: "Critical Error: Gemini API Key not found. Please verify you have set GEMINI_API_KEY or VITE_GEMINI_API_KEY in your environment variables (AI Studio or Vercel)." 
+      });
+    }
+
     try {
       const ai = getAI();
+      if (!ai) throw new Error("Could not initialize Gemini SDK. Missing API Key.");
       const prompt = `DATABASE SEARCH & INTELLIGENCE: "${companyName}"
       User Intent: ${intent || 'General Networking'}
 
@@ -72,7 +89,7 @@ async function startServer() {
       Return JSON structure strictly. Ensure scores reflect the User Intent accurately.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3-flash-preview",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         config: {
           responseMimeType: "application/json",
@@ -133,8 +150,17 @@ async function startServer() {
 
   app.post("/api/outreach", async (req, res) => {
     const { contactValue, companyName, intent, tone, length } = req.body;
+    
+    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ 
+        error: "Critical Error: Gemini API Key not found. Please add GEMINI_API_KEY or VITE_GEMINI_API_KEY to your env." 
+      });
+    }
+
     try {
       const ai = getAI();
+      if (!ai) throw new Error("Could not initialize Gemini SDK. Missing API Key.");
       const prompt = `Write a high-performance, human-like outreach message.
       Company: ${companyName}
       Target: ${contactValue}
@@ -149,7 +175,7 @@ async function startServer() {
       - Formatting: Clean and readable.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3-flash-preview",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
       });
 
@@ -163,7 +189,8 @@ async function startServer() {
   app.post("/api/history", (req, res) => {
     const { query, result } = req.body;
     const db = getDB();
-    db.history.unshift({ id: Date.now().toString(), query, result, timestamp: new Date().toISOString() });
+    const id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+    db.history.unshift({ id, query, result, timestamp: new Date().toISOString() });
     db.history = db.history.slice(0, 50); // Keep last 50
     saveDB(db);
     res.json({ success: true });

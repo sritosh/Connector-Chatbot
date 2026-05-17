@@ -266,15 +266,18 @@ export function Dashboard({ onGoHome, user }: DashboardProps) {
                       <div key={`cat-${category}-${catIdx}`} className="space-y-4">
                         <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{category}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {result.contacts.filter(c => c.type === category).map((contact, idx) => (
-                            <ResultCard
-                              key={`res-${category}-${contact.id || contact.value}-${idx}`}
-                              contact={contact}
-                              onSave={handleSaveContact}
-                              onGenerateOutreach={setSelectedContact}
-                              isSaved={db.saved?.some(s => s.value === contact.value) || false}
-                            />
-                          ))}
+                          {result.contacts.filter(c => c.type === category).map((contact, idx) => {
+                            const uniqueKey = `res-${category}-${contact.value}-${idx}`;
+                            return (
+                              <ResultCard
+                                key={uniqueKey}
+                                contact={contact}
+                                onSave={handleSaveContact}
+                                onGenerateOutreach={setSelectedContact}
+                                isSaved={db.saved?.some(s => s.value === contact.value) || false}
+                              />
+                            );
+                          })}
                         </div>
                       </div>
                     ))
@@ -308,7 +311,7 @@ export function Dashboard({ onGoHome, user }: DashboardProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {db.saved?.map((contact, idx) => (
                         <ResultCard
-                          key={`saved-${contact.id || contact.value || idx}`}
+                          key={`saved-${contact.value}-${idx}`}
                           contact={contact}
                           onSave={() => handleDeleteSaved(contact.id)}
                           onGenerateOutreach={setSelectedContact}
@@ -326,9 +329,9 @@ export function Dashboard({ onGoHome, user }: DashboardProps) {
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-500">Search Logs</h2>
                   </div>
                   <div className="space-y-3">
-                    {db.history?.map((item: HistoryItem) => (
+                    {db.history?.map((item: HistoryItem, hIdx: number) => (
                       <div
-                        key={item.id}
+                        key={`hist-${item.id}-${hIdx}`}
                         onClick={() => {
                           setResult(item.result);
                           setQuery(item.query);
