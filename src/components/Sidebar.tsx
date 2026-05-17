@@ -3,13 +3,16 @@ import { Search, History, Bookmark, Settings, Zap, Home, LogOut } from "lucide-r
 import { cn } from "../lib/utils";
 import { supabase } from "../lib/supabase";
 
+import { User } from "@supabase/supabase-js";
+
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onGoHome: () => void;
+  user: User | null;
 }
 
-export function Sidebar({ activeTab, setActiveTab, onGoHome }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, onGoHome, user }: SidebarProps) {
   const menuItems = [
     { id: "search", icon: Search, label: "Discovery" },
     { id: "saved", icon: Bookmark, label: "Saved Contacts" },
@@ -20,6 +23,8 @@ export function Sidebar({ activeTab, setActiveTab, onGoHome }: SidebarProps) {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
 
   return (
     <div className="w-64 h-screen bg-sidebar-bg border-r border-border-subtle flex flex-col">
@@ -55,6 +60,18 @@ export function Sidebar({ activeTab, setActiveTab, onGoHome }: SidebarProps) {
       </nav>
 
       <div className="p-4 border-t border-white/5 space-y-1">
+        {user && (
+          <div className="px-4 py-3 mb-2 flex items-center gap-3 bg-white/5 rounded-xl border border-white/5">
+            <div className="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-xs">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white truncate">{displayName}</p>
+              <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+            </div>
+          </div>
+        )}
+
         <button 
           onClick={onGoHome}
           className="w-full flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-white transition-colors group text-sm font-medium"

@@ -78,14 +78,14 @@ export default function App() {
   if (view === "dashboard") {
     // If trying to access dashboard, check if authorized (user or guest)
     if (user || isGuest) {
-      return <Dashboard onGoHome={() => setView("landing")} />;
+      return <Dashboard onGoHome={() => setView("landing")} user={user} />;
     }
     // If not authorized, redirect to auth (or landing)
     // The user wants login to be optional, so maybe allow dashboard as guest by default?
     // Let's default to guest if they just click "Start Searching"
     console.log("Dashboard requested but not logged in. Defaulting to Guest.");
     setIsGuest(true);
-    return <Dashboard onGoHome={() => setView("landing")} />;
+    return <Dashboard onGoHome={() => setView("landing")} user={user} />;
   }
 
   // Default: Landing Page

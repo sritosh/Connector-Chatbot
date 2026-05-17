@@ -9,6 +9,7 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -35,6 +36,11 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              full_name: fullName,
+            }
+          }
         });
         if (error) throw error;
         setMessage('Confirmation email sent! Please check your inbox and click the link to activate your account.');
@@ -95,6 +101,29 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4">
+            {isSignUp && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="space-y-1.5"
+              >
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                    <span className="text-slate-500 text-[10px] font-bold">FN</span>
+                  </div>
+                  <input
+                    type="text"
+                    required={isSignUp}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Doe"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"
+                  />
+                </div>
+              </motion.div>
+            )}
+
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
               <div className="relative">

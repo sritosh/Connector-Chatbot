@@ -8,11 +8,14 @@ import { motion, AnimatePresence } from "motion/react";
 import { OutreachModal } from "./OutreachModal";
 import { cn } from "../lib/utils";
 
+import { User } from "@supabase/supabase-js";
+
 interface DashboardProps {
   onGoHome: () => void;
+  user: User | null;
 }
 
-export function Dashboard({ onGoHome }: DashboardProps) {
+export function Dashboard({ onGoHome, user }: DashboardProps) {
   const [activeTab, setActiveTab] = useState("search");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -103,7 +106,7 @@ export function Dashboard({ onGoHome }: DashboardProps) {
 
   return (
     <div className="flex h-screen bg-brand-bg text-slate-200 overflow-hidden">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onGoHome={onGoHome} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onGoHome={onGoHome} user={user} />
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Search Header */}
