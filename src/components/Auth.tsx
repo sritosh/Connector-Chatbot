@@ -31,22 +31,10 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
     setMessage(null);
 
     try {
-      const getURL = () => {
-        let url = window?.location?.origin || '';
-        // Check if it ends with /
-        url = url.endsWith('/') ? url.slice(0, -1) : url;
-        return url;
-      };
-
-      const absoluteRedirectUrl = `${getURL()}/auth/callback`;
-      
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            emailRedirectTo: absoluteRedirectUrl,
-          },
         });
         if (error) throw error;
         setMessage('Check your email for the confirmation link!');
@@ -69,18 +57,9 @@ export function Auth({ onGuestAccess }: { onGuestAccess: () => void }) {
     setLoading(true);
     setError(null);
 
-    const getURL = () => {
-      let url = window?.location?.origin || '';
-      url = url.endsWith('/') ? url.slice(0, -1) : url;
-      return url;
-    };
-
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: {
-          redirectTo: `${getURL()}/auth/callback`,
-        },
       });
       if (error) throw error;
     } catch (err: any) {
