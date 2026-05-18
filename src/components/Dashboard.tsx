@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { ResultCard } from "./ResultCard";
-import { Search, Loader2, Zap, History as HistoryIcon, Bookmark, Globe, X, XCircle } from "lucide-react";
+import { Search, Loader2, Zap, History as HistoryIcon, Bookmark, Globe, X, XCircle, Menu } from "lucide-react";
 import { geminiService } from "../services/geminiService";
 import { SearchResult, Contact, DBState, HistoryItem } from "../types";
 import { motion, AnimatePresence } from "motion/react";
@@ -16,6 +16,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ onGoHome, user }: DashboardProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("search");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -105,47 +106,69 @@ export function Dashboard({ onGoHome, user }: DashboardProps) {
   };
 
   return (
-    <div className="flex h-screen bg-brand-bg text-slate-200 overflow-hidden">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onGoHome={onGoHome} user={user} />
+    <div className="flex h-screen bg-brand-bg text-slate-200 overflow-hidden relative">
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onGoHome={onGoHome} 
+        user={user} 
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden relative">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-white/5 bg-brand-bg/50 backdrop-blur-md z-30">
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 hover:bg-white/5 rounded-lg text-slate-400"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <div className="flex items-center gap-2">
+            <Zap className="text-blue-600 w-5 h-5 fill-current" />
+            <span className="font-bold text-sm tracking-tight text-white uppercase">Connector</span>
+          </div>
+          <div className="w-10" /> {/* Spacer */}
+        </div>
+
         {/* Search Header */}
-        <div className="p-8 pb-4">
+        <div className="p-4 sm:p-8 sm:pb-4">
           <div className="max-w-4xl mx-auto w-full space-y-6">
             <div className="relative">
               <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full" />
-                <form onSubmit={handleSearch} className="relative h-18 bg-card-bg border border-white/10 rounded-[2rem] flex items-center px-4 gap-4 shadow-2xl focus-within:border-white/20 transition-all">
-                  <div className="p-3 bg-blue-500/10 rounded-2xl">
-                    <Search className={cn("w-6 h-6 text-blue-500 shrink-0 mx-auto", loading && "animate-pulse")} />
+                <form onSubmit={handleSearch} className="relative h-14 sm:h-18 bg-card-bg border border-white/10 rounded-2xl sm:rounded-[2rem] flex items-center px-3 sm:px-4 gap-2 sm:gap-4 shadow-2xl focus-within:border-white/20 transition-all">
+                  <div className="p-2 sm:p-3 bg-blue-500/10 rounded-xl sm:rounded-2xl shrink-0">
+                    <Search className={cn("w-4 h-4 sm:w-6 sm:h-6 text-blue-500 shrink-0 mx-auto", loading && "animate-pulse")} />
                   </div>
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search brand, startup, or agency..."
-                    className="bg-transparent border-none outline-none text-xl text-white flex-1 placeholder-slate-700 font-bold h-full"
+                    placeholder="Search brand..."
+                    className="bg-transparent border-none outline-none text-base sm:text-xl text-white flex-1 placeholder-slate-700 font-bold h-full min-w-0"
                   />
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                      {query && !loading && (
                        <button 
                          type="button"
                          onClick={() => setQuery("")}
-                         className="p-2 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors"
+                         className="p-1.5 sm:p-2 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors"
                        >
-                         <X className="w-5 h-5 text-slate-700" />
+                         <X className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
                        </button>
                      )}
                      <button 
                        type="submit"
                        disabled={loading || !query.trim()}
-                       className="bg-blue-600 text-white h-12 px-8 rounded-2xl text-sm font-bold hover:bg-blue-500 transition-all disabled:opacity-30 flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
+                       className="bg-blue-600 text-white h-10 sm:h-12 px-4 sm:px-8 rounded-xl sm:rounded-2xl text-[11px] sm:text-sm font-bold hover:bg-blue-500 transition-all disabled:opacity-30 flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
                      >
                        {loading ? (
-                         <>
-                           <Loader2 className="w-4 h-4 animate-spin" />
-                           <span className="hidden sm:inline">Discovery Active</span>
-                         </>
+                         <Loader2 className="w-4 h-4 animate-spin" />
                        ) : (
-                         "Discover Contacts"
+                         <>
+                           <span className="hidden sm:inline">Discover Contacts</span>
+                           <span className="sm:hidden">Discover</span>
+                         </>
                        )}
                      </button>
                   </div>
@@ -155,10 +178,11 @@ export function Dashboard({ onGoHome, user }: DashboardProps) {
             {/* Intent Selector */}
             <div className="flex flex-col items-center gap-3">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Prioritize Results Based on Intent</p>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {intents.map(i => (
-                  <button
-                    key={i}
+              <div className="w-full overflow-x-auto custom-scrollbar-hide sm:custom-scrollbar pb-2">
+                <div className="flex sm:flex-wrap items-center sm:justify-center gap-2 px-4 whitespace-nowrap sm:whitespace-normal">
+                  {intents.map(i => (
+                    <button
+                      key={i}
                     onClick={() => {
                       setIntent(i);
                       if (query.trim()) {
@@ -189,9 +213,10 @@ export function Dashboard({ onGoHome, user }: DashboardProps) {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Content View */}
-        <div className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
+      {/* Content View */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 pb-8 custom-scrollbar">
           <div className="max-w-6xl mx-auto mt-6">
             <AnimatePresence mode="wait">
               {loading && (
@@ -391,8 +416,8 @@ export function Dashboard({ onGoHome, user }: DashboardProps) {
         </div>
 
         {/* Footer */}
-        <footer className="px-8 py-3 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-600">
-          <p>CONNECTOR v1.2.2 — Aggregating public business data from official sources only.</p>
+        <footer className="px-4 sm:px-8 py-3 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2 text-[9px] sm:text-[10px] text-slate-600">
+          <p className="text-center sm:text-left">CONNECTOR v1.2.2 — Aggregating public business data from official sources only.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-slate-400">Compliance</a>
             <a href="#" className="hover:text-slate-400">Terms</a>

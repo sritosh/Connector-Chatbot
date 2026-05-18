@@ -90,11 +90,11 @@ export function LandingPage({ onStart, onLogin, user }: LandingPageProps) {
             <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-6">
               <Zap className="w-3 h-3 fill-current" /> AI-Powered Discovery
             </span>
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 max-w-4xl mx-auto leading-[1.05] text-white">
+            <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-8 max-w-4xl mx-auto leading-[1.05] text-white">
               Find Business Contacts <br />
               <span className="text-slate-600">Instantly with AI</span>
             </h1>
-            <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+            <p className="text-slate-500 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
               Connector uses advanced AI to discover publicly available business contacts 
               for brands, startups, and organizations across the web.
             </p>

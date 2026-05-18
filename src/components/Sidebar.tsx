@@ -10,9 +10,11 @@ interface SidebarProps {
   setActiveTab: (tab: string) => void;
   onGoHome: () => void;
   user: User | null;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function Sidebar({ activeTab, setActiveTab, onGoHome, user }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, onGoHome, user, isOpen, onClose }: SidebarProps) {
   const menuItems = [
     { id: "search", icon: Search, label: "Discovery" },
     { id: "saved", icon: Bookmark, label: "Saved Contacts" },
@@ -27,23 +29,41 @@ export function Sidebar({ activeTab, setActiveTab, onGoHome, user }: SidebarProp
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
 
   return (
-    <div className="w-64 h-screen bg-sidebar-bg border-r border-border-subtle flex flex-col">
-      <button 
-        onClick={onGoHome}
-        className="p-6 flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity text-left cursor-pointer group"
-      >
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-          <Zap className="text-white w-5 h-5 fill-current" />
-        </div>
-        <span className="text-xl font-semibold tracking-tight text-white">Connector</span>
-      </button>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          onClick={onClose}
+        />
+      )}
 
-      <nav className="flex-1 px-4 space-y-1">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={cn(
+      <div className={cn(
+        "w-64 h-screen bg-sidebar-bg border-r border-border-subtle flex flex-col fixed md:static inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out md:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}>
+        <button 
+          onClick={() => {
+            onGoHome();
+            onClose?.();
+          }}
+          className="p-6 flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity text-left cursor-pointer group"
+        >
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Zap className="text-white w-5 h-5 fill-current" />
+          </div>
+          <span className="text-xl font-semibold tracking-tight text-white">Connector</span>
+        </button>
+
+        <nav className="flex-1 px-4 space-y-1">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                setActiveTab(item.id);
+                onClose?.();
+              }}
+              className={cn(
               "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 group text-sm font-medium",
               activeTab === item.id
                 ? "bg-white/5 text-white"
@@ -73,7 +93,10 @@ export function Sidebar({ activeTab, setActiveTab, onGoHome, user }: SidebarProp
         )}
 
         <button 
-          onClick={onGoHome}
+          onClick={() => {
+            onGoHome();
+            onClose?.();
+          }}
           className="w-full flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-white transition-colors group text-sm font-medium"
         >
           <Home className="w-5 h-5 group-hover:scale-110 transition-transform opacity-80 group-hover:opacity-100" />
@@ -89,5 +112,6 @@ export function Sidebar({ activeTab, setActiveTab, onGoHome, user }: SidebarProp
         </button>
       </div>
     </div>
-  );
+  </>
+);
 }

@@ -93,19 +93,19 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
           className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
         >
           {/* Header */}
-          <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <div className="px-5 sm:px-8 py-4 sm:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/20 rounded-xl">
+              <div className="p-2 bg-blue-500/20 rounded-xl hidden sm:block">
                 <Wand2 className="w-5 h-5 text-blue-400" />
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">AI Outreach Architect</h2>
-                <p className="text-xs text-slate-400">Crafting personalized message for {contact.value}</p>
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-xl font-bold text-white truncate">AI Outreach Architect</h2>
+                <p className="text-[10px] sm:text-xs text-slate-400 truncate">Crafting message for {contact.value}</p>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              className="p-2 hover:bg-white/10 rounded-full transition-colors shrink-0"
             >
               <X className="w-5 h-5 text-slate-400" />
             </button>
@@ -178,8 +178,8 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
             </div>
 
             {/* Main Content Area */}
-            <div className="col-span-2 p-8 flex flex-col relative bg-gradient-to-br from-transparent to-blue-500/[0.02] overflow-hidden">
-              <div className="flex-1 rounded-2xl bg-white/[0.03] border border-white/5 p-6 overflow-y-auto custom-scrollbar font-serif leading-relaxed text-slate-300 text-sm whitespace-pre-wrap">
+            <div className="col-span-2 p-4 sm:p-8 flex flex-col relative bg-gradient-to-br from-transparent to-blue-500/[0.02] overflow-hidden">
+              <div className="flex-1 rounded-2xl bg-white/[0.03] border border-white/5 p-4 sm:p-6 overflow-y-auto custom-scrollbar font-serif leading-relaxed text-slate-300 text-sm whitespace-pre-wrap">
                 {message || (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
                     <Sparkles className="w-12 h-12 text-blue-400" />
@@ -188,27 +188,27 @@ export const OutreachModal: React.FC<OutreachModalProps> = ({
                 )}
               </div>
 
-              <div className="mt-6 flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 self-start sm:self-center">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                   <span className="text-[10px] text-slate-500 font-medium">Ready for Outreach</span>
                 </div>
                 
-                <div className="flex gap-3">
+                <div className="flex w-full sm:w-auto gap-2 sm:gap-3">
                   <button
                     disabled={!message || generating}
                     onClick={handleCopy}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white text-xs font-bold rounded-xl transition-all border border-white/10"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all border border-white/10"
                   >
                     {copied ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-slate-400" />}
-                    {copied ? "Copied" : "Copy to Clipboard"}
+                    {copied ? "Copied" : "Copy"}
                   </button>
                   <button
                     disabled={!message || generating}
-                    className="flex items-center gap-2 px-6 py-2 bg-white text-black hover:bg-slate-200 disabled:opacity-30 text-xs font-bold rounded-xl transition-all"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2 bg-white text-black hover:bg-slate-200 disabled:opacity-30 text-[11px] sm:text-xs font-bold rounded-xl transition-all"
                   >
                     <Send className="w-4 h-4" />
-                    Connect Now
+                    Connect
                   </button>
                 </div>
               </div>
