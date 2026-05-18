@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Search, Zap, Shield, Rocket, Globe, ChevronRight, ChevronDown } from "lucide-react";
+import { Search, Zap, Shield, Rocket, Globe, ChevronRight, ChevronDown, Menu, X } from "lucide-react";
 
 interface LandingPageProps {
   onStart: () => void;
@@ -46,6 +46,10 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
 }
 
 export function LandingPage({ onStart, onLogin, user }: LandingPageProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+
   return (
     <div className="min-h-screen bg-brand-bg text-slate-200 selection:bg-blue-500/30 font-sans">
       {/* Navbar */}
@@ -55,6 +59,8 @@ export function LandingPage({ onStart, onLogin, user }: LandingPageProps) {
             <Zap className="text-blue-600 w-6 h-6 fill-current" />
             <span className="font-semibold text-xl tracking-tight text-white">CONNECTOR</span>
           </div>
+
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
@@ -74,7 +80,67 @@ export function LandingPage({ onStart, onLogin, user }: LandingPageProps) {
               </button>
             )}
           </div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            onClick={toggleMobileMenu}
+            className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden border-t border-white/5 bg-brand-bg/95 backdrop-blur-2xl overflow-hidden"
+            >
+              <div className="px-6 py-8 flex flex-col gap-6">
+                <a 
+                  href="#features" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg font-medium text-slate-400 hover:text-white transition-colors"
+                >
+                  Features
+                </a>
+                <a 
+                  href="#how-it-works" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg font-medium text-slate-400 hover:text-white transition-colors"
+                >
+                  How it works
+                </a>
+                <div className="pt-4 border-t border-white/5">
+                  {user ? (
+                    <button 
+                      onClick={() => {
+                        onStart();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-4 bg-blue-600 border border-blue-500 rounded-xl text-white font-bold text-center"
+                    >
+                      Go to Dashboard
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => {
+                        onLogin();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-4 bg-white/5 border border-white/10 rounded-xl text-white font-bold text-center"
+                    >
+                      Sign In
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Hero Section */}
